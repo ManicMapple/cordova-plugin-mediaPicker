@@ -57,7 +57,7 @@
                 if(asset.mediaType==PHAssetMediaTypeImage){
                     [self imageToSandbox:asset dmcPickerPath:dmcPickerPath aListArray:aListArray selectArray:selectArray index:index];
                 }else{
-                    [self videoToSandboxCompress:asset dmcPickerPath:dmcPickerPath aListArray:aListArray selectArray:selectArray index:index];
+                    [self videoToSandbox:asset dmcPickerPath:dmcPickerPath aListArray:aListArray selectArray:selectArray index:index];
                 }
             }
             index++;
@@ -117,9 +117,9 @@
 
 
 -(void)videoToSandbox:(PHAsset *)asset dmcPickerPath:(NSString*)dmcPickerPath aListArray:(NSMutableArray*)aListArray selectArray:(NSMutableArray*)selectArray index:(int)index{
-    PHImageRequestOptions *options = [[PHImageRequestOptions alloc] init];
+    PHVideoRequestOptions *options = [[PHVideoRequestOptions alloc] init];
     options.networkAccessAllowed = YES;
-    options.resizeMode = PHImageRequestOptionsResizeModeFast;
+
     options.progressHandler = ^(double progress, NSError *error, BOOL *stop, NSDictionary *info) {
         NSString *compressCompletedjs = [NSString stringWithFormat:@"MediaPicker.icloudDownloadEvent(%f,%i)", progress,index];
         [self.commandDelegate evalJs:compressCompletedjs];
@@ -170,8 +170,7 @@
         [exportSession exportAsynchronouslyWithCompletionHandler:^{
 
             if (exportSession.status == AVAssetExportSessionStatusFailed) {
-                NSString * errorString = [NSString stringWithFormat:@"videoToSandboxCompress failed %@",exportSession.error];
-               [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:errorString] callbackId:callbackId];
+               [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"compress failed"] callbackId:callbackId];
                 NSLog(@"failed");
                 
             } else if(exportSession.status == AVAssetExportSessionStatusCompleted){
